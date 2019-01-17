@@ -1,0 +1,21 @@
+#holdings {
+  margin-top: 2em;
+}
+
+#holdings td:last-child, #holdings th:last-child {
+  text-align: center;
+}
+
+#holdings .ticker {
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+#holdings .stop.warning {
+  color: red;
+  font-weight: bold;
+}
+
+.row > div {
+  margin-top: 1em;
+}
