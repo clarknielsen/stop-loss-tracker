@@ -9,7 +9,7 @@ for (let i = 0; i < holdings.length; i++) {
   scrapeStock(holdings[i]);
 }
 
-function scrapeStock(holding) {
+function scrapeStock(holding, cb) {
   $.get(`/scrape/${holding.ticker}?date=${holding.date}`).then((data) => {
     // make a new table row
     var row = $("<tr>");
@@ -31,23 +31,14 @@ function scrapeStock(holding) {
 
     $("#holdings").show();
     $("#holdings tbody").append(row.append(td1, td2, td3, td4, td5, td6));
+
+    // run callback to add to localstorage
+    if (cb) cb();
   })
   .fail(() => {
-    removeTicker(holding.ticker);
-
     $("#modal .modal-header").html("Failed to get price history");
     $("#modal").modal("show");
   });
-}
-
-function removeTicker(ticker) {
-  for (let i = 0; i < holdings.length; i++) {
-    if (holdings[i].ticker === ticker) {
-      holdings.splice(i, 1);
-      localStorage.setItem("holdings", JSON.stringify(holdings));
-      break;
-    }
-  }
 }
 
 $("#perc").on("blur", function() {
@@ -87,19 +78,26 @@ $("#add").on("click", function() {
     }
   }
 
-  // add ticker to holdings
-  holdings.push({ticker, date});
-  localStorage.setItem("holdings", JSON.stringify(holdings));
-
   $("#ticker, #date").val("");
 
-  scrapeStock({ticker, date});
+  scrapeStock({ticker, date}, () => {
+    // add ticker to holdings if successful
+    holdings.push({ticker, date});
+    localStorage.setItem("holdings", JSON.stringify(holdings));
+  });
 });
 
 $("#holdings").on("click", ".delete button", function() {
   var ticker = $(this).parent().parent().find("td").eq(0).text();
   
   // remove ticker from storage and dom
-  removeTicker(ticker);
+  for (let i = 0; i < holdings.length; i++) {
+    if (holdings[i].ticker === ticker) {
+      holdings.splice(i, 1);
+      localStorage.setItem("holdings", JSON.stringify(holdings));
+      break;
+    }
+  }
+  
   $(this).parent().parent().remove();
 });
