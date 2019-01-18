@@ -33,9 +33,21 @@ function scrapeStock(holding) {
     $("#holdings tbody").append(row.append(td1, td2, td3, td4, td5, td6));
   })
   .fail(() => {
+    removeTicker(holding.ticker);
+
     $("#modal .modal-header").html("Failed to get price history");
     $("#modal").modal("show");
   });
+}
+
+function removeTicker(ticker) {
+  for (let i = 0; i < holdings.length; i++) {
+    if (holdings[i].ticker === ticker) {
+      holdings.splice(i, 1);
+      localStorage.setItem("holdings", JSON.stringify(holdings));
+      break;
+    }
+  }
 }
 
 $("#perc").on("blur", function() {
@@ -88,13 +100,6 @@ $("#holdings").on("click", ".delete button", function() {
   var ticker = $(this).parent().parent().find("td").eq(0).text();
   
   // remove ticker from storage and dom
-  for (let i = 0; i < holdings.length; i++) {
-    if (holdings[i].ticker === ticker) {
-      holdings.splice(i, 1);
-      localStorage.setItem("holdings", JSON.stringify(holdings));
-      break;
-    }
-  }
-
+  removeTicker(ticker);
   $(this).parent().parent().remove();
 });
