@@ -1,8 +1,11 @@
 // pull values out of storage
 var holdings = JSON.parse(localStorage.getItem("holdings")) || [];
-var perc = parseInt(localStorage.getItem("perc") || 2);
+var perc = parseInt(localStorage.getItem("perc") || 10);
 
 $("#perc").val(perc);
+
+// set today's date
+$("#date").val(new Date().toISOString().split('T')[0]);
 
 for (let i = 0; i < holdings.length; i++) {
   // call api for each item in storage
@@ -55,7 +58,7 @@ $("#perc").on("blur", function() {
 });
 
 $("#add").on("click", function() {
-  var ticker = $("#ticker").val().toLowerCase();
+  var ticker = $("#ticker").val().toLowerCase().trim();
   var date = $("#date").val().split("-");
       date = `${date[1]}/${date[2]}/${date[0]}`;
 
