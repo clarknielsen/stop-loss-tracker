@@ -20,6 +20,7 @@
   "homepage": "https://github.com/clarknielsen/stop-loss-tracker#readme",
   "dependencies": {
     "axios": "^0.21.4",
-    "express": "^4.16.4"
+    "express": "^4.16.4",
+    "papaparse": "^5.3.2"
   }
 }
