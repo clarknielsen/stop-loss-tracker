@@ -1,7 +1,6 @@
 const express = require("express");
 const axios = require("axios");
 const path = require("path");
-const Papa = require("papaparse");
 
 const app = express();
 const PORT = process.env.PORT !== undefined ? process.env.PORT : 3000;
@@ -16,29 +15,26 @@ app.get("/", (req, res) => {
 app.get("/scrape/:symbol", (req, res) => {
   const today = Math.round(new Date().getTime() / 1000);
   const oneYearAgo = today - (60*60*24*365);
-  const url = `https://query1.finance.yahoo.com/v7/finance/download/${req.params.symbol}?period1=${oneYearAgo}&period2=${today}&interval=1d&events=history&includeAdjustedClose=true`;
+  const url = `https://query2.finance.yahoo.com/v8/finance/chart/${req.params.symbol}?period1=${oneYearAgo}&period2=${today}&interval=1d&events=history&includeAdjustedClose=true`;
 
   // download csv
   axios.get(url).then((results) => {
-    // convert to json
-    var csvData = Papa.parse(results.data, { header: true });
-    var history = csvData.data.reverse();
+    var history = results.data.chart.result[0];
+    var timestamps = history.timestamp;
+    var prices = history.indicators.quote[0].close;
 
-    var start = new Date(req.query.date).getTime();
-    var current = parseFloat(history[0].Close);
+    var start = new Date(req.query.date).getTime() / 1000 | 0; // round down
+    var current = parseFloat(prices[prices.length-1]);
     var high = 0;
 
-    for (let i = 0; i < history.length; i++) {
+    for (let i = 0; i < timestamps.length; i++) {
       // only compare within range specified by user
-      if (new Date(history[i].Date).getTime() >= start) {
-        var price = parseFloat(history[i].Close);
+      if (timestamps[i] >= start) {
+        var price = parseFloat(prices[i]);
 
         if (price > high) {
           high = price;
         }
-      }
-      else {
-        break;
       }
     }
 
